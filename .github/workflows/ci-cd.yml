@@ -1,5 +1,3 @@
-on: [push]
-
 name: ASP.NET Core CI-CD
 
 on: [push]
@@ -16,11 +14,11 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Build with dotnet
-      run: dotnet build --configuration Release pipelines-dotnet-core.csproj
+      run: dotnet build --configuration Release
     - name: Test with dotnet
       run: dotnet test --configuration Release
     - name: Package with dotnet
-      run: dotnet publish --configuration Release pipelines-dotnet-core.csproj
+      run: dotnet publish --configuration Release
     - name: Publish artifact
       uses: actions/upload-artifact@master
       with:
@@ -28,6 +26,7 @@ jobs:
         path: bin/Release/netcoreapp2.2/publish
 
   deploy:
+
     needs: build
     runs-on: windows-latest
     steps:
@@ -39,6 +38,6 @@ jobs:
     - name: Deploy to Azure App Service
       uses: azure/appservice-actions/webapp@master
       with:
-        app-name: myAppName
+        app-name: actionsSampleApp
         package: webapp
-        publish-profile: ${{ secrets.actionsSampleAppPublishProfile }}
+        publish-profile: ${{ secrets.webappPublishProfile }}
