@@ -1,0 +1,43 @@
+name: ASP.NET Core CI-CD
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.108
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
+    - name: Test with dotnet
+      run: dotnet test --configuration Release
+    - name: Package with dotnet
+      run: dotnet publish --configuration Release
+    - name: Publish artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: webapp
+        path: bin/Release/netcoreapp2.2/publish
+
+  deploy:
+
+    needs: build
+    runs-on: windows-latest
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@master
+      with:
+        name: webapp
+
+    - name: Deploy to Azure App Service
+      uses: azure/appservice-actions/webapp@master
+      with:
+        app-name: actionsSampleApp
+        package: webapp
+        publish-profile: ${{ secrets.webappPublishProfile }}
